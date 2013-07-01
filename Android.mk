@@ -15,7 +15,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-ifdef BOARD_WLAN_BROADCOM
+ifeq ($(BOARD_WLAN_BROADCOM),true)
 
 LOCAL_PATH:= $(call my-dir)
 
