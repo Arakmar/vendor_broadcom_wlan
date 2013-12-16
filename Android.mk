@@ -30,6 +30,7 @@ SAVED_LOCAL_PATH := $(LOCAL_PATH)
 LOCAL_PATH_ABS := $(shell cd $(SAVED_LOCAL_PATH) && pwd)
 
 BUILD_ROOT := $(ANDROID_PRODUCT_OUT)/obj/BCM4330_DRV
+BCM_MODULE := $(BUILD_ROOT)/$(SRC_MAIN)/dhd-android/bcm4330.ko
 
 BUILD_SUBDIRS := $(shell cd $(SAVED_LOCAL_PATH) && find . -type d)
 BUILD_SRC := $(shell cd $(SAVED_LOCAL_PATH) && find . -name \*[ch])
@@ -40,8 +41,8 @@ REL_SUBDIRS := $(addprefix $(SAVED_LOCAL_PATH)/, $(BUILD_SUBDIRS))
 REL_SRC := $(addprefix $(SAVED_LOCAL_PATH)/, $(BUILD_SRC))
 REL_MK := $(addprefix $(SAVED_LOCAL_PATH)/, $(BUILD_MK))
 
-$(BUILD_ROOT)/$(SRC_MAIN)/dhd-android/bcm4330.ko: $(PRODUCT_OUT)/kernel prep
-	@(cd $(BUILD_ROOT)/$(SRC_MAIN); $(MAKE) -f Makefile)
+$(BCM_MODULE): $(PRODUCT_OUT)/kernel prep
+	@(cd $(BUILD_ROOT)/$(SRC_MAIN); $(MAKE) -f Makefile; mv $(BCM_MODULE) $(KERNEL_MODULES_OUT))
 
 prep: subdirs src mk
 
@@ -54,11 +55,7 @@ src: $(REL_SRC) subdirs
 mk: $(REL_MK) subdirs
 	@(for i in $(BUILD_MK); do test -e $(BUILD_ROOT)/$$i || ln -sf $(LOCAL_PATH_ABS)/$$i $(BUILD_ROOT)/$$i; done)
 
-# copy the modules
-$(TARGET_OUT)/lib/modules/bcm4330.ko: $(BUILD_ROOT)/$(SRC_MAIN)/dhd-android/bcm4330.ko | $(ACP)
-	$(transform-prebuilt-to-target)
-
-ALL_PREBUILT += $(TARGET_OUT)/lib/modules/bcm4330.ko
+TARGET_KERNEL_MODULES := $(BCM_MODULE)
 
 endif # ifneq ($(TARGET_BOARD_PLATFORM),)
 
